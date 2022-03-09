@@ -1,0 +1,76 @@
+---
+title: "Untitled"
+output: pdf_document
+---
+
+```{r, message=FALSE, echo=FALSE}
+install.packages("readxl")
+install.packages("dplyr")
+```
+
+```{r}
+#claim library and function
+library("readxl")
+library("dplyr")
+read_excel_allsheets <- function(filename, tibble = TRUE) {
+    # I prefer straight data.frames
+    # but if you like tidyverse tibbles (the default with read_excel)
+    # then just pass tibble = TRUE
+    sheets <- readxl::excel_sheets(filename)
+    x <- lapply(sheets, function(X) readxl::read_excel(filename, sheet = X))
+    if(!tibble) x <- lapply(x, as.data.frame)
+    names(x) <- sheets
+    x
+}
+```
+
+
+# extract data from xlsx
+```{r, message=FALSE}
+# create all raw table name
+all_raw_table = rep(0, 17)
+# read all data into each table
+for (i in 1:17) {
+# assign name for each table
+all_raw_table[i] <- paste("Table", i, sep = "")
+# extract all worksheet from xlsx with helper function
+
+allsheets <- read_excel_allsheets(paste("data/GSS_Table", i, ".xlsx", sep = ""))
+# extract exact worksheet
+sheet <- allsheets[[paste("Table ", i, ".1_Estimate", sep = "")]]
+#glimpse(sheet)
+assign(all_raw_table[i], sheet)
+}
+
+#consider "eval(as.symbol(all_raw_table[index]))" as the variable name which is the raw table extract from file
+#or just use Table+index, eg. Table1, Table9
+
+```
+
+# clean table
+```{r}
+#1.Had face to face contact with family or friends living outside the household at least once a week in last 3 months
+FACECON_SEX <- Table1 %>% filter(grepl("Had face to face", `Australian Bureau of Statistics`)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Question"=`Australian Bureau of Statistics`, "2019_Males"=`...2`, "2019_Females"=`...3`, "2019_Total_persons"=`...4`, "2020_Males"=`...6`, "2020_Females"=`...7`, "2020_Total_persons"=`...8`))
+FACECON_AGE_2020 <- Table2 %>% filter(grepl("Had face to face", `Australian Bureau of Statistics`)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Sex"=`Australian Bureau of Statistics`, "15–24"=`...2`, "25–39"=`...3`, "40–54"=`...4`, "55–69"=`...5`, "70_years_and_over"=`...6`, "Total"=`...7`)) %>% replace(1, c("Males", "Females", "Total_persons"))
+
+#2.Had other forms of contact with family or friends living outside the household at least once a week in last 3 months
+CONTTYP <- Table1 %>% filter(grepl("Had other forms of contact", `Australian Bureau of Statistics`)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Question"=`Australian Bureau of Statistics`, "2019_Males"=`...2`, "2019_Females"=`...3`, "2019_Total_persons"=`...4`, "2020_Males"=`...6`, "2020_Females"=`...7`, "2020_Total_persons"=`...8`))
+
+#3.Able to get support in times of crisis from persons living outside the household
+
+#4.Has experienced discrimination in last 12 months
+#5.Trust
+#6.Feels the healthcare system can be trusted
+#7.Has experienced at least one personal stressor in last 12 months
+#8.Always or Often feels rushed for time
+#9.Always or Often has difficulty getting to the places needed
+#10.Has difficulty accessing service providers
+#11.Health
+#12.Age group
+#13.Labour force status
+#14.Education
+#15.Main Source of Household Income
+
+```
+
+
