@@ -51,6 +51,7 @@ assign(all_raw_table[i], sheet)
 ```{r}
 #1.Had face to face contact with family or friends living outside the household at least once a week in last 3 months
 FACECON_SEX <- Table1 %>% filter(grepl("Had face to face", `Australian Bureau of Statistics`)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Question"=`Australian Bureau of Statistics`, "2019_Males"=`...2`, "2019_Females"=`...3`, "2019_Total_persons"=`...4`, "2020_Males"=`...6`, "2020_Females"=`...7`, "2020_Total_persons"=`...8`))
+
 FACECON_AGE_2020 <- Table2 %>% filter(grepl("Had face to face", `Australian Bureau of Statistics`)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Sex"=`Australian Bureau of Statistics`, "15–24"=`...2`, "25–39"=`...3`, "40–54"=`...4`, "55–69"=`...5`, "70_years_and_over"=`...6`, "Total"=`...7`)) %>% replace(1, c("Males", "Females", "Total_persons"))
 
 #2.Had other forms of contact with family or friends living outside the household at least once a week in last 3 months
@@ -70,6 +71,8 @@ CONTTYP <- Table1 %>% filter(grepl("Had other forms of contact", `Australian Bur
 #13.Labour force status
 #14.Education
 #15.Main Source of Household Income
+
+FACECON_AGE_2020
 
 ```
 
