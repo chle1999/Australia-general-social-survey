@@ -79,6 +79,7 @@ Q11 <- rbind(slice(Table1, (67:69)), slice(Table1, (72:73)))  %>% select_if(~sum
 Q11_AGE_2020 <- rbind(slice(Table2, (68:70)), slice(Table2, (73:74)), slice(Table2, (138:140)), slice(Table2, (143:144)), slice(Table2, (208:210)), slice(Table2, (213:214))) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Options"=`Australian Bureau of Statistics`, "15–24"=`...2`, "25–39"=`...3`, "40–54"=`...4`, "55–69"=`...5`, "70_years_and_over"=`...6`, "Total"=`...7`)) %>% mutate(Question=rep(c(rep("Self-assessed health status", 3), rep("Whether currently smokes", 2)), 3), .before = Options) %>% mutate(Sex=rep(c("Males", "Females", "Total_persons"), each=5), .before = Question)
 
 #12.Age group
+Q12 <- Table1 %>% slice((77:81)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Age group"=`Australian Bureau of Statistics`, "2019_Males"=`...2`, "2019_Females"=`...3`, "2019_Total_persons"=`...4`, "2020_Males"=`...6`, "2020_Females"=`...7`, "2020_Total_persons"=`...8`)) 
 
 #13.Labour force status
 Q13 <- Table1 %>% slice((85:88)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Labour force status"=`Australian Bureau of Statistics`, "2019_Males"=`...2`, "2019_Females"=`...3`, "2019_Total_persons"=`...4`, "2020_Males"=`...6`, "2020_Females"=`...7`, "2020_Total_persons"=`...8`)) %>% replace(1, c("Full-time Employed", "Part-time Employed", "Unemployed", "Not in the labour force"))
