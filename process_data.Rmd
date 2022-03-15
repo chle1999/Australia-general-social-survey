@@ -50,30 +50,44 @@ assign(all_raw_table[i], sheet)
 # clean table
 ```{r}
 #1.Had face to face contact with family or friends living outside the household at least once a week in last 3 months
-FACECON_SEX <- Table1 %>% filter(grepl("Had face to face", `Australian Bureau of Statistics`)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Question"=`Australian Bureau of Statistics`, "2019_Males"=`...2`, "2019_Females"=`...3`, "2019_Total_persons"=`...4`, "2020_Males"=`...6`, "2020_Females"=`...7`, "2020_Total_persons"=`...8`))
-
-FACECON_AGE_2020 <- Table2 %>% filter(grepl("Had face to face", `Australian Bureau of Statistics`)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Sex"=`Australian Bureau of Statistics`, "15–24"=`...2`, "25–39"=`...3`, "40–54"=`...4`, "55–69"=`...5`, "70_years_and_over"=`...6`, "Total"=`...7`)) %>% replace(1, c("Males", "Females", "Total_persons"))
-
 #2.Had other forms of contact with family or friends living outside the household at least once a week in last 3 months
-CONTTYP <- Table1 %>% filter(grepl("Had other forms of contact", `Australian Bureau of Statistics`)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Question"=`Australian Bureau of Statistics`, "2019_Males"=`...2`, "2019_Females"=`...3`, "2019_Total_persons"=`...4`, "2020_Males"=`...6`, "2020_Females"=`...7`, "2020_Total_persons"=`...8`))
-
 #3.Able to get support in times of crisis from persons living outside the household
-
 #4.Has experienced discrimination in last 12 months
-#5.Trust
-#6.Feels the healthcare system can be trusted
 #7.Has experienced at least one personal stressor in last 12 months
 #8.Always or Often feels rushed for time
 #9.Always or Often has difficulty getting to the places needed
 #10.Has difficulty accessing service providers
+q_names <- c("Had face to face", "Had other forms of contact", "Able to get support in", "Has experienced discrimination", "Has experienced at least one", "Always or Often feels", "Always or Often has", "Has difficulty accessing service")
+extract_table_names <- c("Q1", "Q2", "Q3", "Q4", "Q7", "Q8", "Q9", "Q10")
+for (i in 1:length(q_names)) {
+  tmp1 <- Table1 %>% filter(grepl(q_names[i], `Australian Bureau of Statistics`)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Question"=`Australian Bureau of Statistics`, "2019_Males"=`...2`, "2019_Females"=`...3`, "2019_Total_persons"=`...4`, "2020_Males"=`...6`, "2020_Females"=`...7`, "2020_Total_persons"=`...8`))
+  tmp2 <- Table2 %>% filter(grepl(q_names[i], `Australian Bureau of Statistics`)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Sex"=`Australian Bureau of Statistics`, "15–24"=`...2`, "25–39"=`...3`, "40–54"=`...4`, "55–69"=`...5`, "70_years_and_over"=`...6`, "Total"=`...7`)) %>% replace(1, c("Males", "Females", "Total_persons"))
+  assign(extract_table_names[i], tmp1)
+  assign(paste(extract_table_names[i], "_AGE_2020", sep = ""), tmp2)
+}
+
+#5.Trust
+Q5 <- rbind(slice(Table1, (36:38)), slice(Table1, (41:43)), slice(Table1, (46:48)), slice(Table1, (51:53)))  %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Level"=`Australian Bureau of Statistics`,"2019_Males"=`...2`, "2019_Females"=`...3`, "2019_Total_persons"=`...4`, "2020_Males"=`...6`, "2020_Females"=`...7`, "2020_Total_persons"=`...8`)) %>% mutate(Question=rep(c("Feels most people can be trusted", "Feels the healthcare system can be trusted", "Feels police can be trusted", "Feels the justice system can be trusted"), each = 3), .before = Level)
+
+Q5_AGE_2020 <- rbind(slice(Table2, (37:39)), slice(Table2, (42:44)), slice(Table2, (47:49)), slice(Table2, (52:54)), slice(Table2, (107:109)), slice(Table2, (112:114)), slice(Table2, (117:119)), slice(Table2, (122:124)), slice(Table2, (177:179)), slice(Table2, (182:184)), slice(Table2, (187:189)), slice(Table2, (192:194))) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Level"=`Australian Bureau of Statistics`, "15–24"=`...2`, "25–39"=`...3`, "40–54"=`...4`, "55–69"=`...5`, "70_years_and_over"=`...6`, "Total"=`...7`)) %>% mutate(Question=rep(rep(c("Feels most people can be trusted", "Feels the healthcare system can be trusted", "Feels police can be trusted", "Feels the justice system can be trusted"), each = 3), 3), .before = Level) %>% mutate(Sex=rep(c("Males", "Females", "Total_persons"), each=12), .before = Question)
+
+#6.Feels the healthcare system can be trusted
+
 #11.Health
+Q11 <- rbind(slice(Table1, (67:69)), slice(Table1, (72:73)))  %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Options"=`Australian Bureau of Statistics`,"2019_Males"=`...2`, "2019_Females"=`...3`, "2019_Total_persons"=`...4`, "2020_Males"=`...6`, "2020_Females"=`...7`, "2020_Total_persons"=`...8`)) %>% mutate(Question=c(rep("Self-assessed health status", 3), rep("Whether currently smokes", 2)), .before = Options)
+
+Q11_AGE_2020 <- rbind(slice(Table2, (68:70)), slice(Table2, (73:74)), slice(Table2, (138:140)), slice(Table2, (143:144)), slice(Table2, (208:210)), slice(Table2, (213:214))) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Options"=`Australian Bureau of Statistics`, "15–24"=`...2`, "25–39"=`...3`, "40–54"=`...4`, "55–69"=`...5`, "70_years_and_over"=`...6`, "Total"=`...7`)) %>% mutate(Question=rep(c(rep("Self-assessed health status", 3), rep("Whether currently smokes", 2)), 3), .before = Options) %>% mutate(Sex=rep(c("Males", "Females", "Total_persons"), each=5), .before = Question)
+
 #12.Age group
+
 #13.Labour force status
+Q13 <- Table1 %>% slice((85:88)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Labour force status"=`Australian Bureau of Statistics`, "2019_Males"=`...2`, "2019_Females"=`...3`, "2019_Total_persons"=`...4`, "2020_Males"=`...6`, "2020_Females"=`...7`, "2020_Total_persons"=`...8`)) %>% replace(1, c("Full-time Employed", "Part-time Employed", "Unemployed", "Not in the labour force"))
+
 #14.Education
+Q14 <- Table1 %>% slice((92:94)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Level of highest non-school qualification"=`Australian Bureau of Statistics`, "2019_Males"=`...2`, "2019_Females"=`...3`, "2019_Total_persons"=`...4`, "2020_Males"=`...6`, "2020_Females"=`...7`, "2020_Total_persons"=`...8`))
+
 #15.Main Source of Household Income
-
-FACECON_AGE_2020
-
+Q15 <- Table1 %>% slice((115:118)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Main Source of Household Income"=`Australian Bureau of Statistics`, "2019_Males"=`...2`, "2019_Females"=`...3`, "2019_Total_persons"=`...4`, "2020_Males"=`...6`, "2020_Females"=`...7`, "2020_Total_persons"=`...8`))
 ```
 
 
