@@ -6,12 +6,14 @@ output: pdf_document
 ```{r, message=FALSE, echo=FALSE}
 install.packages("readxl")
 install.packages("dplyr")
+install.packages("ggplot2")
 ```
 
 ```{r}
 #claim library and function
 library("readxl")
 library("dplyr")
+library("ggplot2")
 read_excel_allsheets <- function(filename, tibble = TRUE) {
     # I prefer straight data.frames
     # but if you like tidyverse tibbles (the default with read_excel)
@@ -60,8 +62,8 @@ assign(all_raw_table[i], sheet)
 q_names <- c("Had face to face", "Had other forms of contact", "Able to get support in", "Has experienced discrimination", "Has experienced at least one", "Always or Often feels", "Always or Often has", "Has difficulty accessing service")
 extract_table_names <- c("Q1", "Q2", "Q3", "Q4", "Q7", "Q8", "Q9", "Q10")
 for (i in 1:length(q_names)) {
-  tmp1 <- Table1 %>% filter(grepl(q_names[i], `Australian Bureau of Statistics`)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Question"=`Australian Bureau of Statistics`, "2019_Males"=`...2`, "2019_Females"=`...3`, "2019_Total_persons"=`...4`, "2020_Males"=`...6`, "2020_Females"=`...7`, "2020_Total_persons"=`...8`))
-  tmp2 <- Table2 %>% filter(grepl(q_names[i], `Australian Bureau of Statistics`)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Sex"=`Australian Bureau of Statistics`, "15–24"=`...2`, "25–39"=`...3`, "40–54"=`...4`, "55–69"=`...5`, "70_years_and_over"=`...6`, "Total"=`...7`)) %>% replace(1, c("Males", "Females", "Total_persons"))
+  tmp1 <- Table1 %>% filter(grepl(q_names[i], `Australian Bureau of Statistics`)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Question"=`Australian Bureau of Statistics`, "2019_Males"=`...2`, "2019_Females"=`...3`, "2019_Total_persons"=`...4`, "2020_Males"=`...6`, "2020_Females"=`...7`, "2020_Total_persons"=`...8`)) %>% t() %>% as_tibble() %>% mutate(Category=c("Question", "2019_Males", "2019_Females", "2019_Total_persons", "2020_Males", "2020_Females", "2020_Total_persons"), .before = V1) %>% rename("Data"="V1")
+  tmp2 <- Table2 %>% filter(grepl(q_names[i], `Australian Bureau of Statistics`)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Sex"=`Australian Bureau of Statistics`, "15–24"=`...2`, "25–39"=`...3`, "40–54"=`...4`, "55–69"=`...5`, "70_years_and_over"=`...6`, "Total"=`...7`)) %>% replace(1, c("Males", "Females", "Total_persons")) %>% t() %>% as_tibble() %>% mutate(Age=c("Sex", "15–24", "25–39", "40–54", "55–69", "70_years_and_over", "Total"), .before = V1) %>% rename("Males"="V1", "Females"="V2", "Total_persons"="V3") %>% slice((2:7)) %>% mutate_if(is.numeric, round, digits = 2)
   assign(extract_table_names[i], tmp1)
   assign(paste(extract_table_names[i], "_AGE_2020", sep = ""), tmp2)
 }
@@ -91,4 +93,30 @@ Q14 <- Table1 %>% slice((92:94)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c
 Q15 <- Table1 %>% slice((115:118)) %>% select_if(~sum(!is.na(.)) > 0) %>% rename(c("Main Source of Household Income"=`Australian Bureau of Statistics`, "2019_Males"=`...2`, "2019_Females"=`...3`, "2019_Total_persons"=`...4`, "2020_Males"=`...6`, "2020_Females"=`...7`, "2020_Total_persons"=`...8`))
 ```
 
+
+#draw Diagram
+```{r}
+for (i in 1:length(extract_table_names)) {
+  data <- eval(as.symbol(extract_table_names[i])) %>% slice((2:7))
+  question <- eval(as.symbol(extract_table_names[i])) %>% slice(1) %>% select(Data) %>% unlist()
+  print(ggplot(data, aes(x=Category, y=Data)) + 
+          labs(y="Number(in kilo)") + 
+          geom_col(color="black", fill="#69b3a2") +
+          geom_text(aes(label = Data), size = 3, hjust = 0.5, vjust = 3, position = "stack") +
+          ggtitle(question) +
+          theme_minimal() + 
+          labs(caption = "Created by Group 11 in STA304, Winter 2022"))
+  data2 <- eval(as.symbol(paste(extract_table_names[i], "_AGE_2020", sep = "")))
+  print(ggplot(data2, aes(x=Age)) + 
+          geom_line(aes(y = Males, colour = "Males",group = 1)) + 
+          geom_line(aes(y = Females, colour = "Females", group = 1)) +
+          geom_line(aes(y = Total_persons, colour = "Total_persons", group = 1)) +
+          labs(y="Number(in kilo)") + 
+          ggtitle(question) +
+          theme_minimal() + 
+          theme(legend.position="bottom") +
+          labs(caption = "Created by Group 11 in STA304, Winter 2022"))
+}
+
+```
 
