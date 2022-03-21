@@ -419,6 +419,7 @@ ggplot(Q15, aes(x=Year, y=as.numeric(value), fill=Gender)) +
   theme(legend.position="bottom") +
   labs(caption = "Figure15: Question15 created by Group 11 in STA304, Winter 2022")
 
+print(slice(Q8, 2:7))
 ```
 ##Supplementary Survey
 
