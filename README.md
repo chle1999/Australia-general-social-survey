@@ -1,6 +1,6 @@
 # STA304 Australia-general-social-survey
 
-Overview
+##Overview
 
 This report aims to examine and analyze 15 survey questions and their results presented under the “Wellness” section on the Australian General Social Survey (AGSS) website, and the effect of the pandemic is incorporated in time using R. The difference between people’s responses between 2019 and 2020 is examined to conduct the analysis, which is pre-pandemic and during the pandemic.
 
@@ -11,7 +11,7 @@ There were two major findings discussed in this report: 1) the number of people 
 
 The final report can be viewed [here](https://github.com/chle1999/Australia-general-social-survey/blob/main/ouput/Australia-general-social-survey.pdf).
 
-R Packages
+##R Packages
 
 In order to process the data and analysis, the following packages should be installed:
 
@@ -20,7 +20,7 @@ In order to process the data and analysis, the following packages should be inst
 3. ggplot2
 4. tidyverse
 
-File Structure
+##File Structure
 
 The raw data are contained in the folder "data", which are 17 Excel files directly downloaded from the AGSS website.
 The "output" folder contains the original R Markdown file containing the analysis carried out in R, a PDF version of the final paper, and the reference list.
